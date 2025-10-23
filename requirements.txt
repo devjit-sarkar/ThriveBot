@@ -2,3 +2,4 @@ python-telegram-bot==21.4
 apscheduler==3.10.4
 sqlite-utils==3.36
 notion-client==2.2.1
+openai==2.6.0
