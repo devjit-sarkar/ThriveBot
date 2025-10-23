@@ -1,5 +1,6 @@
 import os
 import threading
+import search
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from telegram import Update
@@ -67,6 +68,34 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("Use /morning or /evening to begin your reflection 🌱")
 
+# --- /search command ---
+async def search_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not context.args:
+        await update.message.reply_text(
+            "🌱 Please provide a theme. Example: /search peace"
+        )
+        return
+
+    theme = context.args[0]
+    quote = search.search_from_query(theme)
+    await update.message.reply_text(f"✨ {quote}")
+
+# --- /image command ---
+async def image_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not context.args:
+        await update.message.reply_text(
+            "🌱 Please provide a theme. Example: /image peace"
+        )
+        return
+
+    theme = context.args[0]
+    image_url = search.image_from_query(theme)
+    if image_url:
+        await update.message.reply_photo(photo=image_url, caption=f"✨ {theme} image")
+    else:
+        await update.message.reply_text("❌ Could not generate image. Try again later.")
+
+
 def main():
     threading.Thread(target=run_server).start()
     app = ApplicationBuilder().token(BOT_TOKEN).build()
@@ -74,6 +103,8 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("morning", morning))
     app.add_handler(CommandHandler("evening", evening))
+    app.add_handler(CommandHandler("search", search_command))
+    app.add_handler(CommandHandler("image", image_command))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     print("🤖 Thrive Bot running...")
