@@ -6,6 +6,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 from notion_integration import add_reflection_to_notion
+from scheduler import setup_schedules
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
@@ -108,6 +109,8 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     print("🤖 Thrive Bot running...")
+    USER_ID = os.getenv("USER_ID")
+    setup_schedules(app, USER_ID)
     app.run_polling()
 
 if __name__ == "__main__":
